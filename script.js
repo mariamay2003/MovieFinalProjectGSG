@@ -1,396 +1,193 @@
-//TMDB 
+//API Key - 48aa722f
+//Example - http://www.omdbapi.com/?i=tt3896198&apikey=48aa722f
 
-const API_KEY = 'api_key=1cf50e6248dc270629e802686245c2c8';
-const BASE_URL = 'https://api.themoviedb.org/3';
-const API_URL = BASE_URL + '/discover/movie?sort_by=popularity.desc&'+API_KEY;
-const IMG_URL = 'https://image.tmdb.org/t/p/w500';
-const searchURL = BASE_URL + '/search/movie?'+API_KEY;
+const key = '48aa722f';
 
-const genres = [
-    {
-      "id": 28,
-      "name": "Action"
-    },
-    {
-      "id": 12,
-      "name": "Adventure"
-    },
-    {
-      "id": 16,
-      "name": "Animation"
-    },
-    {
-      "id": 35,
-      "name": "Comedy"
-    },
-    {
-      "id": 80,
-      "name": "Crime"
-    },
-    {
-      "id": 99,
-      "name": "Documentary"
-    },
-    {
-      "id": 18,
-      "name": "Drama"
-    },
-    {
-      "id": 10751,
-      "name": "Family"
-    },
-    {
-      "id": 14,
-      "name": "Fantasy"
-    },
-    {
-      "id": 36,
-      "name": "History"
-    },
-    {
-      "id": 27,
-      "name": "Horror"
-    },
-    {
-      "id": 10402,
-      "name": "Music"
-    },
-    {
-      "id": 9648,
-      "name": "Mystery"
-    },
-    {
-      "id": 10749,
-      "name": "Romance"
-    },
-    {
-      "id": 878,
-      "name": "Science Fiction"
-    },
-    {
-      "id": 10770,
-      "name": "TV Movie"
-    },
-    {
-      "id": 53,
-      "name": "Thriller"
-    },
-    {
-      "id": 10752,
-      "name": "War"
-    },
-    {
-      "id": 37,
-      "name": "Western"
-    }
-  ]
+var searchInput = document.getElementById('Input');
+var displaySearchList = document.getElementsByClassName('fav-container');
 
-const main = document.getElementById('main');
-const form =  document.getElementById('form');
-const search = document.getElementById('search');
-const tagsEl = document.getElementById('tags');
+fetch('http://www.omdbapi.com/?i=tt3896198&apikey=48aa722f')
+    .then(res => res.json())
+    .then(data => console.log(data));
 
-const prev = document.getElementById('prev')
-const next = document.getElementById('next')
-const current = document.getElementById('current')
-
-var currentPage = 1;
-var nextPage = 2;
-var prevPage = 3;
-var lastUrl = '';
-var totalPages = 100;
-
-var selectedGenre = []
-setGenre();
-function setGenre() {
-    tagsEl.innerHTML= '';
-    genres.forEach(genre => {
-        const t = document.createElement('div');
-        t.classList.add('tag');
-        t.id=genre.id;
-        t.innerText = genre.name;
-        t.addEventListener('click', () => {
-            if(selectedGenre.length == 0){
-                selectedGenre.push(genre.id);
-            }else{
-                if(selectedGenre.includes(genre.id)){
-                    selectedGenre.forEach((id, idx) => {
-                        if(id == genre.id){
-                            selectedGenre.splice(idx, 1);
-                        }
-                    })
-                }else{
-                    selectedGenre.push(genre.id);
-                }
-            }
-            console.log(selectedGenre)
-            getMovies(API_URL + '&with_genres='+encodeURI(selectedGenre.join(',')))
-            highlightSelection()
-        })
-        tagsEl.append(t);
-    })
-}
-
-function highlightSelection() {
-    const tags = document.querySelectorAll('.tag');
-    tags.forEach(tag => {
-        tag.classList.remove('highlight')
-    })
-    clearBtn()
-    if(selectedGenre.length !=0){   
-        selectedGenre.forEach(id => {
-            const hightlightedTag = document.getElementById(id);
-            hightlightedTag.classList.add('highlight');
-        })
-    }
-
-}
-
-function clearBtn(){
-    let clearBtn = document.getElementById('clear');
-    if(clearBtn){
-        clearBtn.classList.add('highlight')
-    }else{
-            
-        let clear = document.createElement('div');
-        clear.classList.add('tag','highlight');
-        clear.id = 'clear';
-        clear.innerText = 'Clear x';
-        clear.addEventListener('click', () => {
-            selectedGenre = [];
-            setGenre();            
-            getMovies(API_URL);
-        })
-        tagsEl.append(clear);
-    }
-    
-}
-
-getMovies(API_URL);
-
-function getMovies(url) {
-  lastUrl = url;
-    fetch(url).then(res => res.json()).then(data => {
-        console.log(data.results)
-        if(data.results.length !== 0){
-            showMovies(data.results);
-            currentPage = data.page;
-            nextPage = currentPage + 1;
-            prevPage = currentPage - 1;
-            totalPages = data.total_pages;
-
-            current.innerText = currentPage;
-
-            if(currentPage <= 1){
-              prev.classList.add('disabled');
-              next.classList.remove('disabled')
-            }else if(currentPage>= totalPages){
-              prev.classList.remove('disabled');
-              next.classList.add('disabled')
-            }else{
-              prev.classList.remove('disabled');
-              next.classList.remove('disabled')
-            }
-
-            tagsEl.scrollIntoView({behavior : 'smooth'})
-
-        }else{
-            main.innerHTML= `<h1 class="no-results">No Results Found</h1>`
-        }
-       
-    })
-
-}
+// Upon keypress - function findMovies is initiated
+searchInput.addEventListener('input', findMovies);
 
 
-function showMovies(data) {
-    main.innerHTML = '';
+async function singleMovie() {
+    // Finding ID of the movie from the URL
+    var urlQueryParams = new URLSearchParams(window.location.search);
+    var id = urlQueryParams.get('id')
+    console.log(id);
+    const url = `https://www.omdbapi.com/?i=${id}&apikey=${key}`
+    const res = await fetch(`${url}`);
+    const data = await res.json();
+    console.log(data);
+    console.log(url);
 
-    data.forEach(movie => {
-        const {title, poster_path, vote_average, overview, id} = movie;
-        const movieEl = document.createElement('div');
-        movieEl.classList.add('movie');
-        movieEl.innerHTML = `
-             <img src="${poster_path? IMG_URL+poster_path: "http://via.placeholder.com/1080x1580" }" alt="${title}">
+    // Making the output html by string interpolition
+    var output = `
 
-            <div class="movie-info">
-                <h3>${title}</h3>
-                <span class="${getColor(vote_average)}">${vote_average}</span>
-                <a class="watch-btn play-btn"><i class="fa-solid fa-play"></i></a>
-                <i class="fa-regular fa-heart"></i>
-                </div>
-
-            <div class="overview">
-
-                <h3>Overview</h3>
-                ${overview}
-                <br/> 
-                <button class="know-more" id="${id}">Know More</button
+    <div class="movie-poster">
+        <img src=${data.Poster} alt="Movie Poster">
+    </div>
+    <div class="movie-details">
+        <div class="details-header">
+            <div class="dh-ls">
+                <h2>${data.Title}</h2>
             </div>
-        
-        `
+            <div class="dh-rs">
+                <i class="fa-solid fa-bookmark" onClick=addTofavorites('${id}') style="cursor: pointer;"></i>
+            </div>
+        </div>
+        <span class="italics-text"><i>${data.Year} &#x2022; ${data.Country} &#x2022; Rating - <span
+                    style="font-size: 18px; font-weight: 600;">${data.imdbRating}</span>/10 </i></span>
+        <ul class="details-ul">
+            <li><strong>Actors: </strong>${data.Actors}</li>
+            <li><strong>Director: </strong>${data.Director}</li>
+            <li><strong>Writers: </strong>${data.Writer}</li>
+        </ul>
+        <ul class="details-ul">
+            <li><strong>Genre: </strong>${data.Genre}</li>
+            <li><strong>Release Date: </strong>${data.DVD}</li>
+            <li><strong>Box Office: </strong>${data.BoxOffice}</li>
+            <li><strong>Movie Runtime: </strong>${data.Runtime}</li>
+        </ul>
+        <p style="font-size: 14px; margin-top:10px;">${data.Plot}</p>
+        <p style="font-size: 15px; font-style: italic; color: #222; margin-top: 10px;">
+            <i class="fa-solid fa-award"></i>
+            &thinsp; ${data.Awards}
+        </p>
+    </div> 
+    `
+    // Appending the output
+    document.querySelector('.movie-container').innerHTML = output
 
-        main.appendChild(movieEl);
-
-        document.getElementById(id).addEventListener('click', () => {
-          console.log(id)
-          openNav(movie)
-        })
-    })
 }
 
-const overlayContent = document.getElementById('overlay-content');
-/* Open when someone clicks on the span element */
-function openNav(movie) {
-  let id = movie.id;
-  fetch(BASE_URL + '/movie/'+id+'/videos?'+API_KEY).then(res => res.json()).then(videoData => {
-    console.log(videoData);
-    if(videoData){
-      document.getElementById("myNav").style.width = "100%";
-      if(videoData.results.length > 0){
-        var embed = [];
-        var dots = [];
-        videoData.results.forEach((video, idx) => {
-          let {name, key, site} = video
+async function addTofavorites(id) {
+    console.log("fav-item", id);
 
-          if(site == 'YouTube'){
-              
-            embed.push(`
-              <iframe width="560" height="315" src="https://www.youtube.com/embed/${key}" title="${name}" class="embed hide" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-          
-          `)
+    localStorage.setItem(Math.random().toString(36).slice(2, 7), id);// math.random for the unique key and value pair
+    alert('Movie Added to Watchlist!');
+}
 
-            dots.push(`
-              <span class="dot">${idx + 1}</span>
-            `)
-          }
-        })
-        
-        var content = `
-        <h1 class="no-results">${movie.original_title}</h1>
-        <br/>
-        
-        ${embed.join('')}
-        <br/>
-
-        <div class="dots">${dots.join('')}</div>
-        
-        `
-        overlayContent.innerHTML = content;
-        activeSlide=0;
-        showVideos();
-      }else{
-        overlayContent.innerHTML = `<h1 class="no-results">No Results Found</h1>`
-      }
+//Removing the movie from the favorites list  and also from the localstorage
+async function removeFromfavorites(id) {
+    console.log(id);
+    for (i in localStorage) {
+        // If the ID passed as argument matches with value associated with key, then removing it 
+        if (localStorage[i] == id) {
+            localStorage.removeItem(i)
+            break;
+        }
     }
-  })
+    //Alerting the user and refreshing the page
+    alert('Movie Removed from Watchlist');
+    window.location.replace('favorite.html');
 }
 
-/* Close when someone clicks on the "x" symbol inside the overlay */
-function closeNav() {
-  document.getElementById("myNav").style.width = "0%";
-}
+//Displaying the movie list on the search page according to the user list
+async function displayMovieList(movies) {
+    var output = '';
+    //Traversing over the movies list which is passed as an argument to our function
+    for (i of movies) {
 
-var activeSlide = 0;
-var totalVideos = 0;
+        var img = '';
+        if (i.Poster != 'N/A') {
+            img = i.Poster;
+        }
+        else {
+            img = 'img/blank-poster.webp';
+        }
+        var id = i.imdbID;
 
-function showVideos(){
-  let embedClasses = document.querySelectorAll('.embed');
-  let dots = document.querySelectorAll('.dot');
+        //Appending the output through string interpolition
+        output += `
 
-  totalVideos = embedClasses.length; 
-  embedClasses.forEach((embedTag, idx) => {
-    if(activeSlide == idx){
-      embedTag.classList.add('show')
-      embedTag.classList.remove('hide')
+        <div class="fav-item">
+            <div class="fav-poster">
+            <a href="movie.html?id=${id}"><img src=${img} alt="Favourites Poster"></a>
+            </div>
+            <div class="fav-details">
+                <div class="fav-details-box">
+                    <div>
+                        <p class="fav-movie-name"><a href="movie.html?id=${id}">${i.Title}</a></p>
+                        <p class="fav-movie-rating"><a href="movie.html?id=${id}">${i.Year}</a></p>
+                    </div>
+                    <div>
+                        <i class="fa-solid fa-bookmark" style="cursor:pointer;" onClick=addTofavorites('${id}')></i>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    }else{
-      embedTag.classList.add('hide');
-      embedTag.classList.remove('show')
+       `
     }
-  })
-
-  dots.forEach((dot, indx) => {
-    if(activeSlide == indx){
-      dot.classList.add('active');
-    }else{
-      dot.classList.remove('active')
-    }
-  })
+    //Appending this to the movie-display class of our html page
+    document.querySelector('.fav-container').innerHTML = output;
+    console.log("here is movie list ..", movies);
 }
 
-const leftArrow = document.getElementById('left-arrow')
-const rightArrow = document.getElementById('right-arrow')
 
-leftArrow.addEventListener('click', () => {
-  if(activeSlide > 0){
-    activeSlide--;
-  }else{
-    activeSlide = totalVideos -1;
-  }
+//When the user is searching for the movie then a list of the related movie will be displayed and that list is fetched
+async function findMovies() {
+    const url = `https://www.omdbapi.com/?s=${(searchInput.value).trim()}&page=1&apikey=${key}`
+    const res = await fetch(`${url}`);
+    const data = await res.json();
 
-  showVideos()
-})
-
-rightArrow.addEventListener('click', () => {
-  if(activeSlide < (totalVideos -1)){
-    activeSlide++;
-  }else{
-    activeSlide = 0;
-  }
-  showVideos()
-})
-
-
-function getColor(vote) {
-    if(vote>= 8){
-        return 'green'
-    }else if(vote >= 5){
-        return "orange"
-    }else{
-        return 'red'
+    if (data.Search) {
+        //Calling the function to display list of the movies related to the user search
+        displayMovieList(data.Search)
     }
 }
 
-form.addEventListener('submit', (e) => {
-    e.preventDefault();
+//Favorites movies are loaded on to the fav page from localstorage
+async function favoritesMovieLoader() {
 
-    const searchTerm = search.value;
-    selectedGenre=[];
-    setGenre();
-    if(searchTerm) {
-        getMovies(searchURL+'&query='+searchTerm)
-    }else{
-        getMovies(API_URL);
+    var output = ''
+    //Traversing over all the movies in the localstorage
+    for (i in localStorage) {
+        var id = localStorage.getItem(i);
+        if (id != null) {
+            //Fetching the movie through id 
+            const url = `https://www.omdbapi.com/?i=${id}&plot=full&apikey=${key}`
+            const res = await fetch(`${url}`);
+            const data = await res.json();
+            console.log(data);
+
+
+            var img = ''
+            if (data.Poster) {
+                img = data.Poster
+            }
+            else { img = data.Title }
+            var Id = data.imdbID;
+            //Adding all the movie html in the output using interpolition
+            output += `
+
+        <div class="fav-item">
+            <div class="fav-poster">
+                <a href="movie.html?id=${id}"><img src=${img} alt="Favourites Poster"></a>
+            </div>
+            <div class="fav-details">
+                <div class="fav-details-box">
+                    <div>
+                        <p class="fav-movie-name">${data.Title}</p>
+                        <p class="fav-movie-rating">${data.Year} &middot; <span
+                                style="font-size: 15px; font-weight: 600;">${data.imdbRating}</span>/10</p>
+                    </div>
+                    <div style="color: maroon">
+                        <i class="fa-solid fa-trash" style="cursor:pointer;" onClick=removeFromfavorites('${Id}')></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+       `;
+        }
+
     }
-
-})
-
-prev.addEventListener('click', () => {
-  if(prevPage > 0){
-    pageCall(prevPage);
-  }
-})
-
-next.addEventListener('click', () => {
-  if(nextPage <= totalPages){
-    pageCall(nextPage);
-  }
-})
-
-function pageCall(page){
-  let urlSplit = lastUrl.split('?');
-  let queryParams = urlSplit[1].split('&');
-  let key = queryParams[queryParams.length -1].split('=');
-  if(key[0] != 'page'){
-    let url = lastUrl + '&page='+page
-    getMovies(url);
-  }else{
-    key[1] = page.toString();
-    let a = key.join('=');
-    queryParams[queryParams.length -1] = a;
-    let b = queryParams.join('&');
-    let url = urlSplit[0] +'?'+ b
-    getMovies(url);
-  }
+    //Appending the html to the movie-display class in favorites page 
+    document.querySelector('.fav-container').innerHTML = output;
 }

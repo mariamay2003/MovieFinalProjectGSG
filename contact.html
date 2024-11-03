@@ -6,10 +6,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
     
         <!--Title-->
-        <title>AMDFlix Movies</title>
+        <title>OMDB Movies</title>
     
         <!--CSS and JavaScript-->
         <link rel="stylesheet" type="text/css" href="css/style.css" />
+        <link rel="stylesheet" href="css/contact.css">
         <link rel="stylesheet" href="css/nav.css">
     
         <!--Google Fonts-->
@@ -24,7 +25,7 @@
     <body>
         <section id="nav-header">
             <nav>
-                <a href="index.html" >AMDFLIX</a>
+                <a href="index.html">AMDFLIX</a>
                 <div class="nav-links" id="navLinks">
                    
                     <ul>
@@ -36,36 +37,27 @@
                    </div>
            </nav>
         </section>
-        <!--Header Bar-->
-        <div class="header">
-            <div class="header-container">
-                <div>
-                    <h1>Search for movies</h1>
-                </div>
-                <div class="header-link">
-                    <span><a href="favorite.html">Favorite List </a></span>
-                </div>
-            </div>
-            <div class="search-box">
-                <input type="text" placeholder="Type movie name here..." class="search-bar" id="Input">
-                <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
-            </div>
-        </div>
-        <!--Main Content Container-->
-        <div class="main">
-            <!-- Search Items Display Section -->
-            <div class="fav-container">
-                <!-- Items are displayed here -->
-            </div>
-            <!--Watermark Area / Start Exploring Section-->
-            <div class="start-exploring">
-                <i class="fa-solid fa-film fa-6x"></i><br>
-                <span>Start searching for movie!</span>
-            </div>
-        </div>
-    
 
-  
+
+    <section class="sub-header">
+        <h1>Contact Us</h1>
+    </section>
+
+
+    <section class="contact-us">
+        <div class="row">
+            <div class="contact-col">
+                <form action="">
+                    <input type="text" placeholder="Enter your name" required>
+                    <input type="email" placeholder="Enter email address" required>
+                    <input type="text" placeholder="Enter your subject" required>
+                    <textarea rows="8" placeholder="Message" required></textarea>
+                    <button type="submit" class="hero-btn red-btn">Send Message</button>
+                </form>
+            </div>
+
+        </div>
+    </section>
 
 
     <footer>
@@ -73,8 +65,5 @@
             <p>&copy; <a href="./index.html" class="adm">ADMFLIX</a> All RIGHT RESERVED</p>
         </div>
     </footer>
-
-
-    <script src="script.js"></script>
 </body>
 </html>
